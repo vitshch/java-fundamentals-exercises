@@ -1,4 +1,4 @@
-package com.bobocode;
+package com.bobocode.sort;
 
 import java.util.Arrays;
 
