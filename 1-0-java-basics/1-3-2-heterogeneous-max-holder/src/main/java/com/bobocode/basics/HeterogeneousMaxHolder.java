@@ -1,6 +1,9 @@
 package com.bobocode.basics;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * {@link HeterogeneousMaxHolder} is a multi-type container that holds maximum values per each type. It's kind of a
@@ -15,6 +18,8 @@ import java.util.Map;
  * @author Taras Boychuk
  */
 public class HeterogeneousMaxHolder {
+
+    private Map<Class<?>, Comparable<?>> maxHolder = new HashMap<>();
 
     /**
      * A method put stores a provided value by its type, if the value is greater than the current maximum. In other words, the logic
