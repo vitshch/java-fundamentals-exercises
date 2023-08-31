@@ -25,7 +25,6 @@ public class ExerciseIntroduction {
      * @return "The key to efficient learning is practice!"
      */
     public String getWelcomeMessage() {
-        // todo: implement a method and return a message according to javadoc
         return "The key to efficient learning is practice!";
     }
 

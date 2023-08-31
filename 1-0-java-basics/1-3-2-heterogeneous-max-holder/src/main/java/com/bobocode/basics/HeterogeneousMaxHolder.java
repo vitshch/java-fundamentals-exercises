@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 public class HeterogeneousMaxHolder {
 
-    private Map<Class<?>, Comparable<?>> maxHolder = new HashMap<>();
+    private Map<Class<?>, Object> maxHolder = new HashMap<>();
 
     /**
      * A method put stores a provided value by its type, if the value is greater than the current maximum. In other words, the logic
@@ -36,6 +36,17 @@ public class HeterogeneousMaxHolder {
      * @return a smaller value among the provided value and the current maximum
      */
     // todo: implement a method according to javadoc
+    public <T extends Comparable<? super T>> T put(Class<T> key, T value) {
+        T currentMax = (T) maxHolder.get(key);
+        if (currentMax == null) {
+            maxHolder.put(key, value);
+            return null;
+        } else if (currentMax.compareTo(value) < 0){
+            maxHolder.put(key, value);
+            return currentMax;
+        }
+        return value;
+    }
 
     /**
      * An overloaded method put implements the same logic using a custom comparator. A given comparator is wrapped with
