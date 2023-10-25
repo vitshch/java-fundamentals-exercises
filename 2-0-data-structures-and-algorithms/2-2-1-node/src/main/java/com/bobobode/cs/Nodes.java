@@ -22,7 +22,7 @@ public class Nodes {
      * @return a new instance of {@link Node}
      */
     public static <T> Node<T> create(T element) {
-        throw new ExerciseNotCompletedException(); // todo:
+        return new Node<>(element);
     }
 
     /**
@@ -33,7 +33,7 @@ public class Nodes {
      * @param <T>    a genetic type
      */
     public static <T> void link(Node<T> first, Node<T> second) {
-        throw new ExerciseNotCompletedException(); // todo:
+        first.setNext(second);
     }
 
     /**
@@ -46,7 +46,10 @@ public class Nodes {
      * @return a reference to a first node created based on firstElement
      */
     public static <T> Node<T> pairOf(T firstElement, T secondElement) {
-        throw new ExerciseNotCompletedException(); // todo:
+        Node<T> first = create(firstElement);
+        Node<T> second = create(secondElement);
+        link(first, second);
+        return first;
     }
 
     /**
@@ -60,7 +63,11 @@ public class Nodes {
      * @return a reference to the first node
      */
     public static <T> Node<T> closedPairOf(T firstElement, T secondElement) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var first = create(firstElement);
+        var second = create(secondElement);
+        link(first, second);
+        link(second, first);
+        return first;
     }
 
     /**
@@ -72,7 +79,14 @@ public class Nodes {
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> chainOf(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var head = create(elements[0]);
+        var current = head;
+        for (int i = 1; i < elements.length; i++) {
+            Node<T> node = create(elements[i]);
+            current.setNext(node);
+            current = node;
+        }
+        return head;
     }
 
     /**
@@ -85,6 +99,14 @@ public class Nodes {
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> circleOf(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var head = new Node<>(elements[0]);
+        var current = head;
+        for (int i = 1; i < elements.length; i++) {
+            Node<T> node = create(elements[i]);
+            current.setNext(node);
+            current = node;
+        }
+        current.setNext(head);
+        return head;
     }
 }

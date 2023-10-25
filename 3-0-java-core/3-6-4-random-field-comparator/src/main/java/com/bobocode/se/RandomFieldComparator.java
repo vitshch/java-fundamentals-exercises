@@ -1,7 +1,11 @@
 package com.bobocode.se;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+
+import java.lang.reflect.Field;
 import java.util.Comparator;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 /**
  * A generic comparator that is comparing a random field of the given class. The field is either primitive or
@@ -18,8 +22,25 @@ import java.util.Comparator;
  */
 public class RandomFieldComparator<T> implements Comparator<T> {
 
+    private Class<T> targetType;
+    private Field field;
+
     public RandomFieldComparator(Class<T> targetType) {
-        throw new ExerciseNotCompletedException(); // todo: implement this constructor;
+        if (targetType == null) {
+            throw new IllegalArgumentException();
+        }
+        if (targetType.getFields().length == 0) {
+            throw new NullPointerException();
+        }
+        var fields = Stream.of(targetType.getFields())
+                .filter(f -> f.getType().isPrimitive() || f.getType().isAssignableFrom(Comparable.class))
+                .toList();
+        var length = fields.size();
+        if (length == 0) {
+            throw new IllegalArgumentException();
+        }
+        var index = ThreadLocalRandom.current().nextInt(length);
+        field = fields.get(index);
     }
 
     /**
