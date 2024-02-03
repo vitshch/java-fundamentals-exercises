@@ -1,11 +1,13 @@
 package com.bobocode.se;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * A generic comparator that is comparing a random field of the given class. The field is either primitive or
@@ -26,21 +28,15 @@ public class RandomFieldComparator<T> implements Comparator<T> {
     private Field field;
 
     public RandomFieldComparator(Class<T> targetType) {
-        if (targetType == null) {
-            throw new IllegalArgumentException();
-        }
-        if (targetType.getFields().length == 0) {
-            throw new NullPointerException();
-        }
-        var fields = Stream.of(targetType.getFields())
-                .filter(f -> f.getType().isPrimitive() || f.getType().isAssignableFrom(Comparable.class))
-                .toList();
-        var length = fields.size();
-        if (length == 0) {
-            throw new IllegalArgumentException();
-        }
-        var index = ThreadLocalRandom.current().nextInt(length);
-        field = fields.get(index);
+        this.targetType = targetType;
+        this.field = findRandomFieldOfType(targetType);
+    }
+
+    private Field findRandomFieldOfType(Class<T> targetType) {
+        return Arrays.stream(targetType.getDeclaredFields())
+                .filter(field -> Comparable.class.isAssignableFrom(field.getType()) || field.getType().isPrimitive())
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("There are no field to compare"));
     }
 
     /**
@@ -53,16 +49,35 @@ public class RandomFieldComparator<T> implements Comparator<T> {
      *         zero if objects are equals,
      *         negative int in case of first parameter {@param o1} is less than second one {@param o2}.
      */
+    @SneakyThrows
     @Override
     public int compare(T o1, T o2) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        Objects.requireNonNull(o1);
+        Objects.requireNonNull(o2);
+
+        return compareValues(o1, o2);
+    }
+
+    private <U extends Comparable<? super U>> int compareValues(T o1, T o2) {
+        Comparator<U> comparator = Comparator.nullsLast(Comparator.naturalOrder());
+        return comparator.compare(fieldExtractor(o1), fieldExtractor(o2));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <U extends Comparable<? super U>> U fieldExtractor(T obj) {
+        try {
+            field.setAccessible(true);
+            return (U) field.get(obj);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Unable to extract field value", e);
+        }
     }
 
     /**
      * Returns the name of the randomly-chosen comparing field.
      */
     public String getComparingFieldName() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        return field.getName();
     }
 
     /**
@@ -73,6 +88,8 @@ public class RandomFieldComparator<T> implements Comparator<T> {
      */
     @Override
     public String toString() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        return "Random field comparator of class '%s' is comparing '%s'".formatted(
+                targetType.getSimpleName(), field.getName()
+        );
     }
 }

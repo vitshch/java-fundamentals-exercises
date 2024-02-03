@@ -1,11 +1,14 @@
 package com.bobocode.basics;
 
 import com.bobocode.basics.util.BaseEntity;
+import com.bobocode.util.ExerciseNotCompletedException;
 import lombok.Data;
 
+import javax.swing.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
@@ -58,7 +61,6 @@ public class CrazyGenerics {
      * @param <R> - converted result type
      */
     public interface Converter<T, R> { // todo: introduce type parameters
-        // todo: add convert method
         R convert(T source);
     }
 
@@ -180,10 +182,7 @@ public class CrazyGenerics {
          * @param validationPredicate criteria for validation
          * @return true if all entities fit validation criteria
          */
-        public static boolean isValidCollection(
-                Collection<? extends BaseEntity> entities,
-                Predicate<? super BaseEntity> validationPredicate
-        ) {
+        public static boolean isValidCollection(Collection<? extends BaseEntity> entities, Predicate<? super BaseEntity> validationPredicate) {
             return entities.stream()
                     .allMatch(validationPredicate);
         }
@@ -214,21 +213,9 @@ public class CrazyGenerics {
          * @return optional max value
          */
         // todo: create a method and implement its logic manually without using util method from JDK
-        public static <T> Optional<T> findMax(Iterable<T> elements, Comparator<T> comparator) {
-//            return StreamSupport.stream(elements.spliterator(), false).max(comparator);
-
-            var iterator = elements.iterator();
-            if (!iterator.hasNext()) {
-                return Optional.empty();
-            }
-            T max = iterator.next();
-            while (iterator.hasNext()) {
-                T element = iterator.next();
-                if (comparator.compare(max, element) < 0) {
-                    max = element;
-                }
-            }
-            return Optional.of(max);
+        public static <T> Optional<T> findMax(Iterable<T> elements, Comparator<? super T> comparator) {
+            return StreamSupport.stream(elements.spliterator(), false)
+                    .max(comparator);
         }
 
         /**
@@ -245,9 +232,7 @@ public class CrazyGenerics {
          */
         // todo: create a method according to JavaDoc and implement it using previous method
         public static <T extends BaseEntity> T findMostRecentlyCreatedEntity(Collection<T> entities) {
-            return entities.stream()
-                    .max(CREATED_ON_COMPARATOR)
-                    .orElseThrow(NoSuchElementException::new);
+            return findMax(entities, CREATED_ON_COMPARATOR).orElseThrow();
         }
 
         /**
@@ -262,11 +247,11 @@ public class CrazyGenerics {
         public static void swap(List<?> elements, int i, int j) {
             Objects.checkIndex(i, elements.size());
             Objects.checkIndex(j, elements.size());
-            swapHelper(elements, i, j);
+            swapItems(elements, i, j);
         }
 
-        public static <T> void swapHelper(List<T> elements, int i, int j) {
-            T tmp = elements.get(i);
+        private static <T> void swapItems(List<T> elements, int i, int j) {
+            var tmp = elements.get(i);
             elements.set(i, elements.get(j));
             elements.set(j, tmp);
         }

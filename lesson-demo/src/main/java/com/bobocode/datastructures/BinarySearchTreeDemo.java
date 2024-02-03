@@ -14,7 +14,6 @@ import java.util.function.Supplier;
  * Prep a simple demo showing those methods work
  * Post  screenshots of your code in the Thread 👇
  */
-// @TODO !!!
 public class BinarySearchTreeDemo {
 
     public static void main(String[] args) {
